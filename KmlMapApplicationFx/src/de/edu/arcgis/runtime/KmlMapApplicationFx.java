@@ -6,32 +6,43 @@
 
 package de.edu.arcgis.runtime;
 
+import com.esri.map.ArcGISTiledMapServiceLayer;
+import com.esri.map.JMap;
+import com.esri.map.LayerList;
+import com.esri.runtime.ArcGISRuntime;
 import java.io.IOException;
 import javafx.application.Application;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
+import javafx.embed.swing.SwingNode;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
 /**
  *
- * @author Developer
+ * @author Jan Tschada
  */
 public class KmlMapApplicationFx extends Application {
     
     @Override
     public void start(Stage primaryStage) throws IOException {
-        Parent root = FXMLLoader.load(getClass().getResource("KmlServiceView.fxml"));
+        Parent splitView = FXMLLoader.load(getClass().getResource("KmlServiceView.fxml"));
         
-        Scene scene = new Scene(root, 800, 600);
+        Scene scene = new Scene(splitView, 800, 600);
         
         primaryStage.setTitle("Kml Map Application");
         primaryStage.setScene(scene);
         primaryStage.show();
+    }
+    
+    private SwingNode createMapNode() {
+        ArcGISRuntime.initialize();
+        SwingNode mapNode = new SwingNode();
+        JMap map = new JMap();
+        LayerList layers = map.getLayers();
+        layers.add(new ArcGISTiledMapServiceLayer("http://services.arcgisonline.com/arcgis/rest/services/World_Topo_Map/MapServer"));
+        mapNode.setContent(map);
+        return mapNode;
     }
 
     /**
