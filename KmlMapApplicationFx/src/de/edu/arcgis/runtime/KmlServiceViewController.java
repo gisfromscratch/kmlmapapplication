@@ -18,15 +18,25 @@ package de.edu.arcgis.runtime;
 
 import com.esri.map.ArcGISTiledMapServiceLayer;
 import com.esri.map.JMap;
+import com.esri.map.KMLLayer;
 import com.esri.map.LayerList;
 import com.esri.runtime.ArcGISRuntime;
 import java.awt.Dimension;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingNode;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.SplitPane;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javax.swing.SwingUtilities;
 
 /**
  *
@@ -34,22 +44,77 @@ import javafx.scene.control.SplitPane;
  */
 public class KmlServiceViewController implements Initializable {
     
-    @FXML private SplitPane splitPane;
+    @FXML
+    private SplitPane splitPane;
+    
+    @FXML
+    private TableView<LayerRow> layerTable;
+    
+    @FXML
+    private TableColumn visibleColumn;
+    
+    @FXML
+    private TableColumn urlColumn;
+    
+    private final LayerRowFactory rowFactory;
+    
+    public KmlServiceViewController() {
+        rowFactory = new LayerRowFactory();
+    }
+    
+    private static JMap map;
     
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         // Add the map on top
-        splitPane.getItems().set(0, createMapNode());
+        SwingNode mapNode = createMapNode();
+        splitPane.getItems().set(0, mapNode);
+        
+        // Intialize the table columns
+        visibleColumn.setCellValueFactory(new PropertyValueFactory<LayerRow, Boolean>("visible"));
+        urlColumn.setCellValueFactory(new PropertyValueFactory<LayerRow, String>("url"));
+        
+        // Setup the data source
+        ObservableList<LayerRow> layerItems = FXCollections.observableArrayList();
+        layerTable.setItems(layerItems);
+        
+        // Add a KML layer
+        KMLLayer kmlLayer = new KMLLayer("https://maps.google.com/maps/ms?hl=de&ie=UTF8&oe=UTF8&msa=0&msid=201976294070805075493.0004fc4b042b1cae45153&dg=feature&output=kml");
+        LayerRow layerRow = rowFactory.createRow(kmlLayer);
+        layerItems.add(layerRow);
+        if (null != map) {
+            LayerList layers = map.getLayers();
+            layers.add(kmlLayer);
+        }
+    }
+    
+    public static void stop() {
+        if (null != map) {
+            SwingUtilities.invokeLater(new Runnable() {
+
+                @Override
+                public void run() {
+                    // TODO: Application won't stop here
+                    map.dispose();
+                    map = null;
+                }               
+            });
+        }
     }
     
     private SwingNode createMapNode() {
-        ArcGISRuntime.initialize();
         SwingNode mapNode = new SwingNode();
-        JMap map = new JMap();
-        LayerList layers = map.getLayers();
-        layers.add(new ArcGISTiledMapServiceLayer("http://services.arcgisonline.com/arcgis/rest/services/World_Topo_Map/MapServer"));
-        mapNode.setContent(map);
-        map.setMinimumSize(new Dimension(400, 300));
+        if (null == map) {
+            // TODO: Yields to an access violation
+            //ArcGISRuntime.setRenderEngine(ArcGISRuntime.RenderEngine.OpenGL);
+            ArcGISRuntime.initialize();
+            
+            map = new JMap();
+            LayerList layers = map.getLayers();
+            layers.add(new ArcGISTiledMapServiceLayer("http://services.arcgisonline.com/arcgis/rest/services/ESRI_StreetMap_World_2D/MapServer"));
+            mapNode.setContent(map);
+            map.setMinimumSize(new Dimension(400, 300));
+        }
         return mapNode;
     }
 }

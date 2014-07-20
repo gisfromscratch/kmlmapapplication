@@ -29,6 +29,11 @@ public class KmlMapApplicationFx extends Application {
         primaryStage.setScene(scene);
         primaryStage.show();
     }
+    
+    @Override
+    public void stop() {
+        KmlServiceViewController.stop();
+    }    
 
     /**
      * @param args the command line arguments
