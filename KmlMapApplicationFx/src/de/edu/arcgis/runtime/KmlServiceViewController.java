@@ -16,8 +16,14 @@
 
 package de.edu.arcgis.runtime;
 
+import com.esri.map.ArcGISTiledMapServiceLayer;
+import com.esri.map.JMap;
+import com.esri.map.LayerList;
+import com.esri.runtime.ArcGISRuntime;
+import java.awt.Dimension;
 import java.net.URL;
 import java.util.ResourceBundle;
+import javafx.embed.swing.SwingNode;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.SplitPane;
@@ -32,6 +38,18 @@ public class KmlServiceViewController implements Initializable {
     
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        
+        // Add the map on top
+        splitPane.getItems().set(0, createMapNode());
+    }
+    
+    private SwingNode createMapNode() {
+        ArcGISRuntime.initialize();
+        SwingNode mapNode = new SwingNode();
+        JMap map = new JMap();
+        LayerList layers = map.getLayers();
+        layers.add(new ArcGISTiledMapServiceLayer("http://services.arcgisonline.com/arcgis/rest/services/World_Topo_Map/MapServer"));
+        mapNode.setContent(map);
+        map.setMinimumSize(new Dimension(400, 300));
+        return mapNode;
     }
 }

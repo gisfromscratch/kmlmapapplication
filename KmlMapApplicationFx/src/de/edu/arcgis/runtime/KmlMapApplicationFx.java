@@ -6,13 +6,8 @@
 
 package de.edu.arcgis.runtime;
 
-import com.esri.map.ArcGISTiledMapServiceLayer;
-import com.esri.map.JMap;
-import com.esri.map.LayerList;
-import com.esri.runtime.ArcGISRuntime;
 import java.io.IOException;
 import javafx.application.Application;
-import javafx.embed.swing.SwingNode;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -33,16 +28,6 @@ public class KmlMapApplicationFx extends Application {
         primaryStage.setTitle("Kml Map Application");
         primaryStage.setScene(scene);
         primaryStage.show();
-    }
-    
-    private SwingNode createMapNode() {
-        ArcGISRuntime.initialize();
-        SwingNode mapNode = new SwingNode();
-        JMap map = new JMap();
-        LayerList layers = map.getLayers();
-        layers.add(new ArcGISTiledMapServiceLayer("http://services.arcgisonline.com/arcgis/rest/services/World_Topo_Map/MapServer"));
-        mapNode.setContent(map);
-        return mapNode;
     }
 
     /**
