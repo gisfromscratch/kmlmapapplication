@@ -13,10 +13,10 @@
           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="123.0" prefWidth="205.0" />
           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
                <children>
-                  <TableView fx:id="layerTable" layoutX="14.0" layoutY="14.0" prefHeight="166.0" prefWidth="563.0" AnchorPane.bottomAnchor="8.0" AnchorPane.leftAnchor="8.0" AnchorPane.rightAnchor="8.0" AnchorPane.topAnchor="8.0">
+                  <TableView fx:id="layerTable" editable="true" layoutX="14.0" layoutY="14.0" prefHeight="166.0" prefWidth="563.0" AnchorPane.bottomAnchor="8.0" AnchorPane.leftAnchor="8.0" AnchorPane.rightAnchor="8.0" AnchorPane.topAnchor="8.0">
                     <columns>
                       <TableColumn fx:id="visibleColumn" prefWidth="75.0" text="Visible" />
-                      <TableColumn fx:id="urlColumn" prefWidth="250.0" text="URL" />
+                      <TableColumn fx:id="urlColumn" editable="false" prefWidth="462.0" text="URL" />
                     </columns>
                   </TableView>
                </children>

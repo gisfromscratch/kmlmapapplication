@@ -20,6 +20,8 @@ import com.esri.map.ArcGISTiledMapServiceLayer;
 import com.esri.map.JMap;
 import com.esri.map.KMLLayer;
 import com.esri.map.LayerList;
+import com.esri.map.MapEvent;
+import com.esri.map.MapEventListenerAdapter;
 import com.esri.runtime.ArcGISRuntime;
 import java.awt.Dimension;
 import java.lang.reflect.InvocationTargetException;
@@ -30,12 +32,17 @@ import java.util.logging.Logger;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingNode;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.SplitPane;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.util.Callback;
 import javax.swing.SwingUtilities;
 
 /**
@@ -51,10 +58,10 @@ public class KmlServiceViewController implements Initializable {
     private TableView<LayerRow> layerTable;
     
     @FXML
-    private TableColumn visibleColumn;
+    private TableColumn<LayerRow, Boolean> visibleColumn;
     
     @FXML
-    private TableColumn urlColumn;
+    private TableColumn<LayerRow, String> urlColumn;
     
     private final LayerRowFactory rowFactory;
     
@@ -73,6 +80,10 @@ public class KmlServiceViewController implements Initializable {
         // Intialize the table columns
         visibleColumn.setCellValueFactory(new PropertyValueFactory<LayerRow, Boolean>("visible"));
         urlColumn.setCellValueFactory(new PropertyValueFactory<LayerRow, String>("url"));
+
+        // Set the cell factory
+        visibleColumn.setCellFactory(CheckBoxTableCell.forTableColumn(visibleColumn));
+        urlColumn.setCellFactory(TextFieldTableCell.forTableColumn());
         
         // Setup the data source
         ObservableList<LayerRow> layerItems = FXCollections.observableArrayList();
@@ -80,9 +91,15 @@ public class KmlServiceViewController implements Initializable {
         
         // Add a KML layer
         KMLLayer kmlLayer = new KMLLayer("https://maps.google.com/maps/ms?hl=de&ie=UTF8&oe=UTF8&msa=0&msid=201976294070805075493.0004fc4b042b1cae45153&dg=feature&output=kml");
-        LayerRow layerRow = rowFactory.createRow(kmlLayer);
-        layerItems.add(layerRow);
         if (null != map) {
+            map.addMapEventListener(new MapEventListenerAdapter() {
+                
+                @Override
+                public void mapReady(MapEvent mapEvent) {
+                    LayerRow layerRow = rowFactory.createRow(kmlLayer);
+                    layerItems.add(layerRow);
+                }
+            });
             LayerList layers = map.getLayers();
             layers.add(kmlLayer);
         }

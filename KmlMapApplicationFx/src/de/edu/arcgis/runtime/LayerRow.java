@@ -16,9 +16,15 @@
 
 package de.edu.arcgis.runtime;
 
+import com.esri.map.KMLLayer;
 import com.esri.map.Layer;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ReadOnlyStringProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 
 /**
  * Row representing a ArcGIS Layer.
@@ -26,23 +32,32 @@ import javafx.beans.property.SimpleStringProperty;
  */
 public class LayerRow {
     
-    private final Layer layer;
+    private Layer layer;
     
     private final SimpleBooleanProperty visible;
     
-    private final SimpleStringProperty url;
+    private final ReadOnlyStringProperty url;
     
     public LayerRow(Layer layer) {
         this.layer = layer;
         visible = new SimpleBooleanProperty(layer.isVisible());
+        
+        // Update the layer visibility
+        visible.addListener(new ChangeListener<Boolean>() {
+
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                LayerRow.this.layer.setVisible(newValue);
+            }
+        });
         url = new SimpleStringProperty(layer.getUrl());
     }
     
-    public boolean isVisible() {
-        return layer.isVisible();
+    public BooleanProperty visibleProperty() {
+        return visible;
     }
     
-    public String getUrl() {
-        return layer.getUrl();
+    public ReadOnlyStringProperty urlProperty() {
+        return url;
     }
 }
