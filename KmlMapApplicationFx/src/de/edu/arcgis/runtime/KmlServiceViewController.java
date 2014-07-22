@@ -24,25 +24,23 @@ import com.esri.map.MapEvent;
 import com.esri.map.MapEventListenerAdapter;
 import com.esri.runtime.ArcGISRuntime;
 import java.awt.Dimension;
-import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.ResourceBundle;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingNode;
-import javafx.event.EventHandler;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Button;
 import javafx.scene.control.SplitPane;
-import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
-import javafx.util.Callback;
 import javax.swing.SwingUtilities;
 
 /**
@@ -53,6 +51,12 @@ public class KmlServiceViewController implements Initializable {
     
     @FXML
     private SplitPane splitPane;
+    
+    @FXML
+    private TextField urlInputTextField;
+    
+    @FXML
+    private Button addKmlLayerButton;
     
     @FXML
     private TableView<LayerRow> layerTable;
@@ -89,20 +93,41 @@ public class KmlServiceViewController implements Initializable {
         ObservableList<LayerRow> layerItems = FXCollections.observableArrayList();
         layerTable.setItems(layerItems);
         
-        // Add a KML layer
-        KMLLayer kmlLayer = new KMLLayer("https://maps.google.com/maps/ms?hl=de&ie=UTF8&oe=UTF8&msa=0&msid=201976294070805075493.0004fc4b042b1cae45153&dg=feature&output=kml");
         if (null != map) {
             map.addMapEventListener(new MapEventListenerAdapter() {
                 
                 @Override
                 public void mapReady(MapEvent mapEvent) {
-                    LayerRow layerRow = rowFactory.createRow(kmlLayer);
-                    layerItems.add(layerRow);
+                    // Add a KML layer
+                    addKmlLayer("https://maps.google.com/maps/ms?hl=de&ie=UTF8&oe=UTF8&msa=0&msid=201976294070805075493.0004fc4b042b1cae45153&dg=feature&output=kml");
+                    
+                    // Delegate to FX thread
+                    Platform.runLater(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            addKmlLayerButton.setDisable(false);
+                        }                        
+                    });
                 }
             });
-            LayerList layers = map.getLayers();
-            layers.add(kmlLayer);
         }
+    }
+    
+    public void addKmlLayer(ActionEvent event) {
+        if (null != map) {
+            addKmlLayer(urlInputTextField.getText());
+        }
+    }
+
+    private void addKmlLayer(String layerUrl) {
+        KMLLayer kmlLayer = new KMLLayer(layerUrl);
+        LayerList layers = map.getLayers();
+        layers.add(kmlLayer);
+        
+        LayerRow layerRow = rowFactory.createRow(kmlLayer);
+        ObservableList<LayerRow> layerItems = layerTable.getItems();
+        layerItems.add(layerRow);
     }
     
     public static void stop() {
