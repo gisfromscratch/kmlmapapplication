@@ -19,6 +19,7 @@ package de.edu.arcgis.runtime;
 import com.esri.map.ArcGISTiledMapServiceLayer;
 import com.esri.map.JMap;
 import com.esri.map.KMLLayer;
+import com.esri.map.Layer;
 import com.esri.map.LayerList;
 import com.esri.map.MapEvent;
 import com.esri.map.MapEventListenerAdapter;
@@ -63,6 +64,9 @@ public class KmlServiceViewController implements Initializable {
     private Button addKmlLayerButton;
     
     @FXML
+    private Button removeKmlLayerButton;
+    
+    @FXML
     private TableView<LayerRow> layerTable;
     
     @FXML
@@ -97,6 +101,10 @@ public class KmlServiceViewController implements Initializable {
         ObservableList<LayerRow> layerItems = FXCollections.observableArrayList();
         layerTable.setItems(layerItems);
         
+        // Bind selecting layers with remove button
+        TableView.TableViewSelectionModel<LayerRow> tableSelectionModel = layerTable.getSelectionModel();
+        removeKmlLayerButton.disableProperty().bind(tableSelectionModel.selectedItemProperty().isNull());
+        
         if (null != map) {
             map.addMapEventListener(new MapEventListenerAdapter() {
                 
@@ -121,6 +129,20 @@ public class KmlServiceViewController implements Initializable {
     public void addKmlLayer(ActionEvent event) {
         if (null != map) {
             addKmlLayer(urlInputTextField.getText());
+        }
+    }
+    
+    public void removeKmlLayer(ActionEvent event) {
+        if (null != map) {
+            TableView.TableViewSelectionModel<LayerRow> tableSelectionModel = layerTable.getSelectionModel();
+            ObservableList<LayerRow> selectedLayerItems = tableSelectionModel.getSelectedItems();
+            LayerList layers = map.getLayers();
+            ObservableList<LayerRow> layerItems = layerTable.getItems();
+            for (LayerRow selectedLayerItem : selectedLayerItems) {
+                Layer layer = selectedLayerItem.getLayer();
+                layers.remove(layer);
+                layerItems.remove(selectedLayerItem);
+            }
         }
     }
 

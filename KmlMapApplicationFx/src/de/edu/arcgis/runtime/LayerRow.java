@@ -51,6 +51,10 @@ public class LayerRow {
         url = new SimpleStringProperty(layer.getUrl());
     }
     
+    Layer getLayer() {
+        return layer;
+    }
+    
     public BooleanProperty visibleProperty() {
         return visible;
     }
