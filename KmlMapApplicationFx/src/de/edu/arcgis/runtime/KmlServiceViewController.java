@@ -23,9 +23,13 @@ import com.esri.map.LayerList;
 import com.esri.map.MapEvent;
 import com.esri.map.MapEventListenerAdapter;
 import com.esri.runtime.ArcGISRuntime;
+import java.awt.Container;
 import java.awt.Dimension;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -132,15 +136,19 @@ public class KmlServiceViewController implements Initializable {
     
     public static void stop() {
         if (null != map) {
-            SwingUtilities.invokeLater(new Runnable() {
-
-                @Override
-                public void run() {
-                    // TODO: Application won't stop here
-                    map.dispose();
-                    map = null;
-                }               
-            });
+            try {
+                SwingUtilities.invokeAndWait(new Runnable() {
+                    
+                    @Override
+                    public void run() {
+                        // TODO: Application won't stop here
+                        map.dispose();
+                        map = null;
+                    }
+                });
+            } catch (InterruptedException | InvocationTargetException ex) {
+                Logger.getLogger(KmlServiceViewController.class.getName()).log(Level.SEVERE, "Disposing the map failed!", ex);
+            }
         }
     }
     
